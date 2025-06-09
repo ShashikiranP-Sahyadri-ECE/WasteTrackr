@@ -1,0 +1,60 @@
+Build a full-stack lightweight digital record-keeping and reporting system for a semi-mechanized Material Recovery Facility (MRF) to track waste loads.
+
+Requirements:
+
+1. Backend: Python Flask API
+   - Expose endpoints to add waste load records
+   - Store data in a local SQLite database (or CSV)
+   - Endpoint to fetch all records
+   - Generate weekly and monthly summary reports as CSV or PDF
+
+2. Frontend: Responsive HTML + CSS + JavaScript interface
+   - Waste Load Entry Form with fields:
+       - Vehicle Number (text)
+       - Date & Time (auto-filled but editable)
+       - Waste Weight (kg, number)
+       - Waste Type (dropdown: Mixed, Dry, Wet)
+       - Material Category (dropdown: Plastic, Glass, Rubber, Multi-layered Packaging)
+       - Destination (dropdown: Recycler, Landfill, Cement Factory)
+   - Submit button sends data to Flask backend API
+   - Show success or error messages on submit
+
+3. Data Persistence:
+   - Use SQLite database for storing records persistently
+   - Implement offline-first functionality using browser localStorage
+     * If offline, save data locally and sync automatically when back online
+
+4. Reporting:
+   - Web page `/reports` that displays:
+     - A table of all records
+     - Summary charts (bar/pie) for waste volume by category and destination using Chart.js or similar
+   - Button to download weekly/monthly reports as CSV or PDF
+
+5. Bonus:
+   - Basic user authentication (optional)
+   - Input validations on frontend and backend
+   - Deployment instructions to run locally or on cloud (like Replit)
+
+6. Style:
+   - Use Bootstrap or simple CSS for responsive UI
+
+Deliverables:
+- Complete runnable Replit project with backend and frontend
+- Well-structured code with comments
+- README with setup and usage instructions
+- Demo video or GIF is optional
+
+---
+
+Please generate the entire codebase including:
+
+- `app.py` for Flask backend
+- HTML templates for form and reports
+- JavaScript for frontend logic, offline sync, and chart rendering
+- CSS (if any)
+- Database schema/init script
+- Instructions to run the project
+
+---
+
+Make sure the app can be run easily in Replit environment and tested immediately.

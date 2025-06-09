@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}Waste Load Reports - MRF Waste Logger{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title mb-0">
+                    <i data-feather="bar-chart-2" class="me-2"></i>
+                    Waste Load Reports
+                </h2>
+                <div>
+                    <a href="{{ url_for('export_csv') }}" class="btn btn-success me-2">
+                        <i data-feather="download" class="me-1"></i>
+                        Export CSV
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i data-feather="plus-circle" class="me-1"></i>
+                        Log New Load
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Advanced Search & Filter Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i data-feather="search" class="me-2"></i>
+                            Advanced Search & Filter
+                            <button class="btn btn-sm btn-outline-secondary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                                <i data-feather="filter" class="me-1"></i>
+                                {{ 'Hide' if current_filters else 'Show' }} Filters
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="collapse {{ 'show' if current_filters else '' }}" id="filterCollapse">
+                        <div class="card-body">
+                            <form method="GET" action="{{ url_for('report') }}" id="filterForm">
+                                <div class="row">
+                                    <!-- Vehicle Number Search -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="vehicle_number" 
+                                               name="vehicle_number" 
+                                               value="{{ current_filters.get('vehicle_number', '') }}"
+                                               placeholder="Search vehicle...">
+                                    </div>
+                                    
+                                    <!-- Date Range -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="date_from" class="form-label">Date From</label>
+                                        <input type="date" 
+                                               class="form-control" 
+                                               id="date_from" 
+                                               name="date_from" 
+                                               value="{{ current_filters.get('date_from', '') }}">
+                                    </div>
+                                    
+                                    <div class="col-md-3 mb-3">
+                                        <label for="date_to" class="form-label">Date To</label>
+                                        <input type="date" 
+                                               class="form-control" 
+                                               id="date_to" 
+                                               name="date_to" 
+                                               value="{{ current_filters.get('date_to', '') }}">
+                                    </div>
+                                    
+                                    <!-- Panchayath Search -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="panchayath" class="form-label">Panchayath/Area</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="panchayath" 
+                                               name="panchayath" 
+                                               value="{{ current_filters.get('panchayath', '') }}"
+                                               placeholder="Search area...">
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <!-- Weight Range -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="weight_min" class="form-label">Min Weight (kg)</label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="weight_min" 
+                                               name="weight_min" 
+                                               value="{{ current_filters.get('weight_min', '') }}"
+                                               step="0.1" 
+                                               min="0">
+                                    </div>
+                                    
+                                    <div class="col-md-3 mb-3">
+                                        <label for="weight_max" class="form-label">Max Weight (kg)</label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="weight_max" 
+                                               name="weight_max" 
+                                               value="{{ current_filters.get('weight_max', '') }}"
+                                               step="0.1" 
+                                               min="0">
+                                    </div>
+                                    
+                                    <!-- Category Filters -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="waste_type" class="form-label">Waste Type</label>
+                                        <select class="form-select" id="waste_type" name="waste_type">
+                                            <option value="">All Types</option>
+                                            {% for type in filter_options.get('waste_types', []) %}
+                                                <option value="{{ type }}" {{ 'selected' if current_filters.get('waste_type') == type else '' }}>
+                                                    {{ type }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-3 mb-3">
+                                        <label for="material_category" class="form-label">Material Category</label>
+                                        <select class="form-select" id="material_category" name="material_category">
+                                            <option value="">All Categories</option>
+                                            {% for category in filter_options.get('material_categories', []) %}
+                                                <option value="{{ category }}" {{ 'selected' if current_filters.get('material_category') == category else '' }}>
+                                                    {{ category }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="destination" class="form-label">Destination</label>
+                                        <select class="form-select" id="destination" name="destination">
+                                            <option value="">All Destinations</option>
+                                            {% for dest in filter_options.get('destinations', []) %}
+                                                <option value="{{ dest }}" {{ 'selected' if current_filters.get('destination') == dest else '' }}>
+                                                    {{ dest }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-9 mb-3 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i data-feather="search" class="me-1"></i>
+                                            Apply Filters
+                                        </button>
+                                        <a href="{{ url_for('report') }}" class="btn btn-secondary me-2">
+                                            <i data-feather="x" class="me-1"></i>
+                                            Clear All
+                                        </a>
+                                        <span class="text-muted ms-2">
+                                            Showing {{ waste_logs|length }} of {{ stats.total_loads if stats else 0 }} records
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% if waste_logs %}
+                    <!-- Summary Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">{{ stats.total_loads if stats else waste_logs|length }}</h3>
+                                    <p class="card-text mb-0">Total Loads</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">
+                                        {% if stats %}
+                                            {{ "%.1f"|format(stats.total_weight) }}
+                                        {% else %}
+                                            {% set total_weight = waste_logs|map(attribute='Waste Weight (kg)')|map('float')|sum %}
+                                            {{ "%.1f"|format(total_weight) }}
+                                        {% endif %}
+                                    </h3>
+                                    <p class="card-text mb-0">Total Weight (kg)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">
+                                        {{ stats.unique_waste_types if stats else waste_logs|groupby('Waste Type')|list|length }}
+                                    </h3>
+                                    <p class="card-text mb-0">Waste Types</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title">
+                                        {{ stats.unique_vehicles if stats else waste_logs|groupby('Vehicle Number')|list|length }}
+                                    </h3>
+                                    <p class="card-text mb-0">Unique Vehicles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    {% if waste_logs %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i data-feather="pie-chart" class="me-2"></i>
+                                        Waste by Type
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="wasteTypeChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i data-feather="bar-chart" class="me-2"></i>
+                                        Weight by Destination
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="destinationChart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i data-feather="trending-up" class="me-2"></i>
+                                        Material Categories Distribution
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="materialChart" width="800" height="400"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Data Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">
+                                        <i data-feather="truck" class="me-1"></i>
+                                        Vehicle Number
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="calendar" class="me-1"></i>
+                                        Date & Time
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="package" class="me-1"></i>
+                                        Weight (kg)
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="layers" class="me-1"></i>
+                                        Waste Type
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="grid" class="me-1"></i>
+                                        Material Category
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="map-pin" class="me-1"></i>
+                                        Destination
+                                    </th>
+                                    <th scope="col">
+                                        <i data-feather="map" class="me-1"></i>
+                                        Panchayath
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in waste_logs %}
+                                <tr>
+                                    <td class="fw-bold">{{ log['Vehicle Number'] }}</td>
+                                    <td>
+                                        {% set dt = log['Date & Time'] %}
+                                        {% if dt %}
+                                            {{ dt.replace('T', ' ') if 'T' in dt else dt }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">{{ log['Waste Weight (kg)'] }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if log['Waste Type'] == 'Mixed' %}bg-warning
+                                            {% elif log['Waste Type'] == 'Dry' %}bg-info
+                                            {% elif log['Waste Type'] == 'Wet' %}bg-success
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ log['Waste Type'] }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log['Material Category'] }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if log['Destination'] == 'Recycler' %}bg-success
+                                            {% elif log['Destination'] == 'Cement Factory' %}bg-primary
+                                            {% elif log['Destination'] == 'Landfill' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ log['Destination'] }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log['Panchayath'] if log['Panchayath'] else '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-5">
+                        <i data-feather="inbox" class="mb-3" style="width: 64px; height: 64px; opacity: 0.5;"></i>
+                        <h4 class="text-muted">No Waste Loads Logged Yet</h4>
+                        <p class="text-muted mb-4">Start by logging your first waste load to see reports here.</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                            <i data-feather="plus-circle" class="me-2"></i>
+                            Log Your First Load
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js initialization script -->
+{% if waste_logs and chart_data %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart colors
+    const colors = [
+        '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1', 
+        '#fd7e14', '#20c997', '#6c757d', '#e83e8c', '#17a2b8'
+    ];
+    
+    // Waste Type Pie Chart
+    const wasteTypeCtx = document.getElementById('wasteTypeChart').getContext('2d');
+    const wasteTypeData = {{ chart_data.weight_by_type | tojson }};
+    new Chart(wasteTypeCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(wasteTypeData),
+            datasets: [{
+                data: Object.values(wasteTypeData),
+                backgroundColor: colors.slice(0, Object.keys(wasteTypeData).length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#fff',
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + ' kg';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Destination Bar Chart
+    const destinationCtx = document.getElementById('destinationChart').getContext('2d');
+    const destinationData = {{ chart_data.weight_by_destination | tojson }};
+    new Chart(destinationCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(destinationData),
+            datasets: [{
+                label: 'Weight (kg)',
+                data: Object.values(destinationData),
+                backgroundColor: colors.slice(0, Object.keys(destinationData).length),
+                borderColor: colors.slice(0, Object.keys(destinationData).length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#fff'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#fff'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Material Category Doughnut Chart
+    const materialCtx = document.getElementById('materialChart').getContext('2d');
+    const materialData = {{ chart_data.material_category_counts | tojson }};
+    new Chart(materialCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(materialData),
+            datasets: [{
+                data: Object.values(materialData),
+                backgroundColor: colors.slice(0, Object.keys(materialData).length),
+                borderWidth: 3,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#fff',
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + ' loads';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

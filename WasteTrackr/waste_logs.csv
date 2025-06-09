@@ -1,0 +1,6 @@
+Vehicle Number,Date & Time,Waste Weight (kg),Waste Type,Material Category,Destination
+KA-00-AA-0000,2025-06-09T15:29,100,Mixed,Plastic,Recycler
+KA-00-AA-0000,2025-06-09T15:29,1000,Dry,Rubber,Recycler
+KA-00-AA-0000,2025-06-09T15:34,1000,Mixed,Plastic,Recycler
+KA-00-AA-0000,2025-06-09T15:35,1000,Mixed,Plastic,Landfill
+KA-00-AA-0000,2025-06-09T15:40,100,Mixed,Plastic,Landfill

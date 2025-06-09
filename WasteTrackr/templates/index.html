@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Log Waste Load - MRF Waste Logger{% endblock %}
+
+{% block content %}
+<!-- Organization Header -->
+{% if organization %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center py-4">
+                <div class="d-flex align-items-center justify-content-center">
+                    {% if organization.logo_filename %}
+                        <img src="{{ url_for('uploaded_file', filename=organization.logo_filename) }}" 
+                             alt="{{ organization.name }}" 
+                             height="80" 
+                             class="me-3 rounded">
+                    {% endif %}
+                    <div>
+                        <h1 class="mb-1">{{ organization.name }}</h1>
+                        {% if organization.description %}
+                            <p class="mb-0 opacity-75">{{ organization.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">
+                    <i data-feather="truck" class="me-2"></i>
+                    Log Incoming Waste Load
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_waste_log') }}" id="wasteForm">
+                    <div class="row">
+                        <!-- Vehicle Number -->
+                        <div class="col-md-6 mb-3">
+                            <label for="vehicle_number" class="form-label">
+                                <i data-feather="truck" class="me-1"></i>
+                                Vehicle Number *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="vehicle_number" 
+                                   name="vehicle_number" 
+                                   placeholder="e.g., MH-01-AB-1234"
+                                   required>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="col-md-6 mb-3">
+                            <label for="datetime" class="form-label">
+                                <i data-feather="calendar" class="me-1"></i>
+                                Date & Time *
+                            </label>
+                            <input type="datetime-local" 
+                                   class="form-control" 
+                                   id="datetime" 
+                                   name="datetime" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Waste Weight -->
+                        <div class="col-md-6 mb-3">
+                            <label for="waste_weight" class="form-label">
+                                <i data-feather="package" class="me-1"></i>
+                                Waste Weight (kg) *
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="waste_weight" 
+                                   name="waste_weight" 
+                                   min="0.1" 
+                                   step="0.1" 
+                                   placeholder="e.g., 1500.5"
+                                   required>
+                        </div>
+
+                        <!-- Waste Type -->
+                        <div class="col-md-6 mb-3">
+                            <label for="waste_type" class="form-label">
+                                <i data-feather="layers" class="me-1"></i>
+                                Waste Type *
+                            </label>
+                            <select class="form-select" id="waste_type" name="waste_type" required>
+                                <option value="">Select waste type...</option>
+                                <option value="Mixed">Mixed</option>
+                                <option value="Dry">Dry</option>
+                                <option value="Wet">Wet</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Material Category -->
+                        <div class="col-md-6 mb-3">
+                            <label for="material_category" class="form-label">
+                                <i data-feather="grid" class="me-1"></i>
+                                Material Category *
+                            </label>
+                            <select class="form-select" id="material_category" name="material_category" required>
+                                <option value="">Select material category...</option>
+                                <option value="Plastic">Plastic</option>
+                                <option value="Glass">Glass</option>
+                                <option value="Rubber">Rubber</option>
+                                <option value="MLP">MLP (Multi-Layer Packaging)</option>
+                            </select>
+                        </div>
+
+                        <!-- Destination -->
+                        <div class="col-md-6 mb-3">
+                            <label for="destination" class="form-label">
+                                <i data-feather="map-pin" class="me-1"></i>
+                                Destination *
+                            </label>
+                            <select class="form-select" id="destination" name="destination" required>
+                                <option value="">Select destination...</option>
+                                <option value="Recycler">Recycler</option>
+                                <option value="Landfill">Landfill</option>
+                                <option value="Cement Factory">Cement Factory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Panchayath -->
+                        <div class="col-md-12 mb-3">
+                            <label for="panchayath" class="form-label">
+                                <i data-feather="map" class="me-1"></i>
+                                Panchayath/Area
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="panchayath" 
+                                   name="panchayath" 
+                                   placeholder="e.g., Ullal, Bantwal, Mulky, Puttur, Belthangady"
+                                   list="mangalore-areas">
+                            <datalist id="mangalore-areas">
+                                <option value="Ullal">
+                                <option value="Bantwal">
+                                <option value="Mulky">
+                                <option value="Puttur">
+                                <option value="Belthangady">
+                                <option value="Sullia">
+                                <option value="Kadaba">
+                                <option value="Vittal">
+                                <option value="Mangalore City Corporation">
+                                <option value="Surathkal">
+                                <option value="Mudipu">
+                                <option value="Farangipete">
+                                <option value="Thumbay">
+                                <option value="Gurpur">
+                                <option value="Bajpe">
+                                <option value="Kinnigoli">
+                                <option value="Kateel">
+                                <option value="Venur">
+                                <option value="Beltangady">
+                                <option value="Dharmasthala">
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i data-feather="save" class="me-2"></i>
+                                Log Waste Load
+                            </button>
+                            <button type="reset" class="btn btn-secondary btn-lg ms-2">
+                                <i data-feather="refresh-cw" class="me-2"></i>
+                                Reset Form
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Instructions Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="info" class="me-2"></i>
+                    Instructions
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Fill in all required fields marked with *
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Vehicle number should follow standard format (e.g., MH-01-AB-1234)
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Date and time are auto-filled but can be adjusted if needed
+                    </li>
+                    <li class="mb-0">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Weight should be entered in kilograms with decimal precision if needed
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

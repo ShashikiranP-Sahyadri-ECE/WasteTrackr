@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Organization Setup - MRF Waste Logger{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">
+                    <i data-feather="settings" class="me-2"></i>
+                    Organization Setup
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('save_organization') }}" enctype="multipart/form-data" id="organizationForm">
+                    <div class="row">
+                        <!-- Organization Name -->
+                        <div class="col-12 mb-3">
+                            <label for="name" class="form-label">
+                                <i data-feather="home" class="me-1"></i>
+                                Organization Name *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name" 
+                                   value="{{ organization.name if organization else '' }}"
+                                   placeholder="e.g., Green Valley Material Recovery Facility"
+                                   required>
+                        </div>
+
+                        <!-- Organization Description -->
+                        <div class="col-12 mb-3">
+                            <label for="description" class="form-label">
+                                <i data-feather="file-text" class="me-1"></i>
+                                About/Description
+                            </label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      rows="4"
+                                      placeholder="Brief description of your organization's mission and operations...">{{ organization.description if organization else '' }}</textarea>
+                        </div>
+
+                        <!-- Organization Logo -->
+                        <div class="col-12 mb-3">
+                            <label for="logo" class="form-label">
+                                <i data-feather="image" class="me-1"></i>
+                                Organization Logo
+                            </label>
+                            {% if organization and organization.logo_filename %}
+                                <div class="mb-2">
+                                    <img src="{{ url_for('uploaded_file', filename=organization.logo_filename) }}" 
+                                         alt="Current Logo" 
+                                         class="img-thumbnail" 
+                                         style="max-height: 100px;">
+                                    <small class="text-muted d-block">Current logo</small>
+                                </div>
+                            {% endif %}
+                            <input type="file" 
+                                   class="form-control" 
+                                   id="logo" 
+                                   name="logo" 
+                                   accept="image/*">
+                            <div class="form-text">
+                                Supported formats: PNG, JPG, JPEG, GIF (Max size: 16MB)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i data-feather="save" class="me-2"></i>
+                                Save Organization Information
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg ms-2">
+                                <i data-feather="arrow-left" class="me-2"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Organization Info Card -->
+        {% if organization %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="info" class="me-2"></i>
+                    Current Organization Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if organization.logo_filename %}
+                    <div class="col-md-3 text-center mb-3">
+                        <img src="{{ url_for('uploaded_file', filename=organization.logo_filename) }}" 
+                             alt="{{ organization.name }} Logo" 
+                             class="img-fluid rounded"
+                             style="max-height: 150px;">
+                    </div>
+                    {% endif %}
+                    <div class="col-md-{{ '9' if organization.logo_filename else '12' }}">
+                        <h4 class="fw-bold">{{ organization.name }}</h4>
+                        {% if organization.description %}
+                        <p class="text-muted">{{ organization.description }}</p>
+                        {% endif %}
+                        <small class="text-muted">
+                            Last updated: {{ organization.updated_at.strftime('%B %d, %Y at %I:%M %p') if organization.updated_at else 'Unknown' }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Instructions Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="help-circle" class="me-2"></i>
+                    Setup Instructions
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Enter your organization's full name as it should appear on reports
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Add a brief description of your facility's operations and mission
+                    </li>
+                    <li class="mb-2">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        Upload a logo image that will appear in the header and on reports
+                    </li>
+                    <li class="mb-0">
+                        <i data-feather="check" class="me-2 text-success"></i>
+                        This information will be displayed throughout the application
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

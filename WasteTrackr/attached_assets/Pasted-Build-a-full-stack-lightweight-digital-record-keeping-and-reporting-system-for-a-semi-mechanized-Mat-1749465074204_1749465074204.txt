@@ -1,0 +1,71 @@
+Build a full-stack lightweight digital record-keeping and reporting system for a semi-mechanized Material Recovery Facility (MRF) to track waste loads.
+
+Requirements:
+
+1. Backend: Python Flask API
+   - Expose endpoints to add waste load records
+   - Store data in a local SQLite database (or CSV)
+   - Endpoint to fetch all records
+   - Generate weekly and monthly summary reports as CSV or PDF
+   - Support storing organization information: name, about/description, and logo (image file)
+
+2. Frontend: Responsive HTML + CSS + JavaScript interface
+   - Organization Info Page or section:
+       - Input fields for Organization Name and About/Description (text area)
+       - Upload field for Organization Logo (image file)
+       - Display the stored organization info and logo on the main pages (header or sidebar)
+   - Waste Load Entry Form with fields:
+       - Vehicle Number (text)
+       - Date & Time (auto-filled but editable)
+       - Waste Weight (kg, number)
+       - Waste Type (dropdown: Mixed, Dry, Wet)
+       - Material Category (dropdown: Plastic, Glass, Rubber, Multi-layered Packaging)
+       - Destination (dropdown: Recycler, Landfill, Cement Factory)
+   - Submit button sends data to Flask backend API
+   - Show success or error messages on submit
+
+3. Data Persistence:
+   - Use SQLite database for storing all records persistently
+   - Store uploaded logo as a file or base64 in database or filesystem
+   - Implement offline-first functionality using browser localStorage
+     * If offline, save data locally and sync automatically when back online
+
+4. Reporting:
+   - Web page `/reports` that displays:
+     - A table of all waste load records
+     - Summary charts (bar/pie) for waste volume by category and destination using Chart.js or similar
+   - Button to download weekly/monthly reports as CSV or PDF
+
+5. Bonus:
+   - Basic user authentication (optional)
+   - Input validations on frontend and backend
+   - Deployment instructions to run locally or on cloud (like Replit)
+
+6. Style:
+   - Use Bootstrap or simple CSS for responsive UI
+   - Display organization logo and name prominently on all pages (e.g., header or sidebar)
+
+Deliverables:
+- Complete runnable Replit project with backend and frontend
+- Well-structured code with comments
+- README with setup and usage instructions
+- Demo video or GIF is optional
+
+---
+
+Please generate the entire codebase including:
+
+- `app.py` for Flask backend (with routes for organization info, waste load data, reports)
+- HTML templates for:
+   - Organization info page/form
+   - Waste load entry form
+   - Reports page with charts
+- JavaScript for frontend logic, offline sync, form validation, and chart rendering
+- CSS (if any)
+- Database schema/init script for tables: organization info, waste loads
+- File handling logic for organization logo upload and display
+- Instructions to run the project locally or on Replit
+
+---
+
+Make sure the app can be run easily in the Replit environment and tested immediately.
